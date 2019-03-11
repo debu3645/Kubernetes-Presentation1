@@ -1,0 +1,133 @@
+//Install DOCKER CE
+//Install Dependent package
+$ apt-get update
+$ apt-get -y install apt-transport-https ca-certificates curl software-properties-common
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+// Finger print 9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88
+$ sudo apt-key fingerprint 0EBFCD88
+
+//ADD DOCKER REPO
+$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+//Install Docker package 
+$ sudo apt-get update
+$ sudo apt-cache policy docker-ce
+$ sudo apt-get install -y docker-ce
+
+
+// VERIFY DOCKER STATUS Green and active is postive  
+systemctl status docker
+
+// ---Kubernetes Installation ---
+// ADD Key
+$ sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+// ADD REPO
+$ sudo cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+
+// INSTALL KUBERNETES PACKAGES
+$ sudo apt-get update
+$ sudo apt-get install -y kubelet kubeadm kubectl
+
+// HOLD SERVICE
+$ sudo apt-mark hold kubelet kubeadm kubectl
+
+// ADDITIONAL SETTINGS 
+$ sudo modprobe br_netfilter
+$ sudo echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+$ sudo echo "net.bridge.bridge-nf-call-iptables=1" >> /etc/sysctl.conf
+$ sudo sysctl -p
+
+//SWAP OFF
+#vim.tiny /etc/fstab 
+swapoff -a
+
+// NETWORKING AND CLUSTER START
+
+
+---- ANY ONE NETWORK PLUGGIN FLANNEL or CALICO -------
+
+
+// Flannel
+----------
+
+$ kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=<master_IP>
+
+// Save join token #kubeadm_join.txt
+
+//ADM settings 
+$ mkdir /root/.kube
+$ cp -i /etc/kubernetes/admin.conf /root/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+$ export KUBECONFIG=/etc/kubernetes/admin.conf
+
+//Flannel Network apply 
+$ sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
+
+
+// Calico
+---------
+
+$ sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<master_IP>
+
+// Save join token #kubeadm_join.txt
+
+//ADM settings 
+$ sudo mkdir -p $HOME/.kube
+$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+$ export KUBECONFIG=/etc/kubernetes/admin.conf
+
+//Calico apply 
+$ sudo kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+$ sudo kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+
+
+//By default, your cluster will not schedule pods on the master for security reasons, APPLY "kubectl taint" command 
+$ sudo kubectl get pods -o wide --all-namespaces
+$ sudo kubectl taint nodes --all node-role.kubernetes.io/master-
+
+
+//STATUS CHECK 
+$ sudo kubectl get nodes
+
+
+ADDING NODE
+-----------
+
+
+DASHBOARD
+---------
+
+$ sudo kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+$ sudo kubectl get svc -n kube-system | grep kubernetes-dashboard
+$ sudo kubectl edit svc/kubernetes-dashboard -n kube-system
+//change ClusterIP to NodePort
+// Trouble Shoot
+// Crash loop back dashboard
+// kubectl drain <node_name> --delete-local-data --ignore-daemonsets
+// kubectl uncordon <node_name>
+
+ACCESS DASHBOARD
+----------------
+$ sudo kubectl create serviceaccount dashboard -n default
+$ kubectl create clusterrolebinding dashboard-admin -n default --clusterrole=cluster-admin --serviceaccount=default:dashboard
+$ kubectl get secret $(kubectl get serviceaccount dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
+
+
+CA-ADVISOR
+-----------
+docker run \
+  --volume=/:/rootfs:ro \
+  --volume=/var/run:/var/run:ro \
+  --volume=/sys:/sys:ro \
+  --volume=/var/lib/docker/:/var/lib/docker:ro \
+  --volume=/dev/disk/:/dev/disk:ro \
+  --publish=8080:8080 \
+  --detach=true \
+  --name=cadvisor \
+  google/cadvisor:latest
+

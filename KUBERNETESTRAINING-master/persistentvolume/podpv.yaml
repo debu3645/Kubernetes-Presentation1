@@ -1,0 +1,22 @@
+--- 
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: webserver
+spec: 
+  containers: 
+    - 
+      image: "docker.io/giriraj789/webserver:A"
+      name: webservera
+      ports: 
+        - 
+          containerPort: 8080
+      volumeMounts: 
+        - 
+          mountPath: /var/www/html
+          name: data
+  volumes: 
+    - 
+      name: data
+      persistentVolumeClaim:
+        claimName: persistentclaim

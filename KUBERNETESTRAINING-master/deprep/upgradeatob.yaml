@@ -1,0 +1,22 @@
+--- 
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata: 
+  name: webserver
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels: 
+      app: webserver
+  template: 
+    metadata: 
+      labels: 
+        app: webserver
+    spec: 
+      containers: 
+        - 
+          image: "docker.io/giriraj789/webserver:A"
+          name: webservera
+          ports: 
+            - 
+              containerPort: 8080

@@ -1,0 +1,22 @@
+--- 
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata: 
+  name: votedb
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels: 
+      app: votedb
+  template: 
+    metadata: 
+      labels: 
+        app: votedb
+    spec: 
+      containers: 
+        - 
+          image: "docker.io/giriraj789/votedb:v1"
+          name: votedb
+          ports: 
+            - 
+              containerPort: 3306

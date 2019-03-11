@@ -1,0 +1,24 @@
+--- 
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: resourcepod
+  labels: 
+        app: webserver
+        version: one
+        region: india
+spec: 
+  containers: 
+    - 
+      image: "docker.io/giriraj789/version:1"
+      name: version1
+      resources:
+       requests:
+        memory: "64Mi"
+        cpu: "50m"
+       limits:
+        memory: "128Mi"
+        cpu: "500m"
+      ports: 
+        - 
+          containerPort: 8080

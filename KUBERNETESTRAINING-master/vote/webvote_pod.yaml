@@ -1,0 +1,22 @@
+--- 
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: voteweb
+spec: 
+  containers: 
+    - 
+      image: "docker.io/giriraj789/voteweb:v1"
+      name: voteweb
+      ports: 
+        - 
+          containerPort: 8080
+      volumeMounts: 
+        - 
+          mountPath: /var/www/html
+          name: config-volume
+  volumes: 
+    - 
+      name: config-volume
+      configMap:
+        name: data 

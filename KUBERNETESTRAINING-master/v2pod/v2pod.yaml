@@ -1,0 +1,17 @@
+--- 
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: version2
+  labels: 
+        region: srilanka
+        app: webserver
+        version: two
+spec: 
+  containers: 
+    - 
+      image: "docker.io/giriraj789/version:2"
+      name: version1
+      ports: 
+        - 
+          containerPort: 8080

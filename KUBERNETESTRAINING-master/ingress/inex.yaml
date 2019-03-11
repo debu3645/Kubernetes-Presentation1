@@ -1,0 +1,8 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: deprep-ingress
+spec:
+  backend:
+    serviceName: webserver-867bbd57d8-5mjtn
+    servicePort: 8080

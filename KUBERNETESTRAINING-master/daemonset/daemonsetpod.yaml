@@ -1,0 +1,21 @@
+--- 
+apiVersion: apps/v1beta2
+kind: DaemonSet
+metadata: 
+  name: webserver
+spec: 
+  selector: 
+    matchLabels: 
+      app: webserver
+  template: 
+    metadata: 
+      labels: 
+        app: webserver
+    spec: 
+      containers: 
+        - 
+          image: "docker.io/giriraj789/webserver:A"
+          name: webservera
+          ports: 
+            - 
+              containerPort: 8080
