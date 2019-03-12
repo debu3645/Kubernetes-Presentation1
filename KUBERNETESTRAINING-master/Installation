@@ -119,11 +119,18 @@ $ sudo kubectl taint nodes --all node-role.kubernetes.io/master-
 
 //STATUS CHECK 
 $ sudo kubectl get nodes
+//----------------------------------------------------------------------
 //----Debashish----Incase if you reboot the Master node or Worker node and if you get the below error -
 
 
 //    The connection to the server 10.10.10.2:6443 was refused - did you specify the right host or port? <---- Error statement
 //--   Use the following two commands in Master node "sudo swapoff -a"  and "watch kubectl get nodes"
+
+//Incase if the Worker node is rebooted and the status of Worker node remains "Not Ready" for the command "sudo kubectl get nodes", then "sudo swapff -a" in Worker node
+and try to join again from the below token that you had stored while creating the "sudo kubeadm init" in master
+    //kubeadm join 10.10.10.2:6443 --token puzzrc.snhzh3jv7x4kg9ad --discovery-token-ca-cert-hash sha256:585803f463338cf7fdd5a41f1fa98b52c7d21294d2e786fa85f82be38ad77013
+ 
+//---------------------------------------------------------------------
 
 ADDING NODE
 -----------
