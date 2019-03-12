@@ -50,7 +50,7 @@ $ sudo sysctl -p
 
 //SWAP OFF
 #vim.tiny /etc/fstab 
-swapoff -a
+sudo swapoff -a
 
 // NETWORKING AND CLUSTER START
 
@@ -77,7 +77,23 @@ $ sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1
 
 // Calico
 ---------
+//-----Debashish....Before executing the below pod network command, ensure there is a static IP address.---------------------
+//Following are the steps to configure static IP in Ubuntu18.04(Bionic). But in Ubuntu 16.04 or lower, its in /etc/network/interfaces
+//    sudo vi /etc/netplan/01-network-manager-all.yaml (note - the .yaml file name may be different but the location is /etc/netplan)
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      dhcp4: no
+      dhcp6: no
+      addresses: [10.10.10.2/24, ]
+      gateway4:  10.10.10.1
+      nameservers:
+              addresses: [8.8.8.8, 8.8.4.4]
 
+//Save the 01-network-manager-all.yaml file and execute  sudo netplan apply (no need to bootup the system)
+//------------------------------------------------------------------------------------------------------
 $ sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<master_IP>
 
 // Save join token #kubeadm_join.txt
