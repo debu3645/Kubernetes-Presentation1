@@ -119,7 +119,11 @@ $ sudo kubectl taint nodes --all node-role.kubernetes.io/master-
 
 //STATUS CHECK 
 $ sudo kubectl get nodes
+//----Debashish----Incase if you reboot the Master node or Worker node and if you get the below error -
 
+
+//    The connection to the server 10.10.10.2:6443 was refused - did you specify the right host or port? <---- Error statement
+//--   Use the following two commands in Master node "sudo swapoff -a"  and "watch kubectl get nodes"
 
 ADDING NODE
 -----------
