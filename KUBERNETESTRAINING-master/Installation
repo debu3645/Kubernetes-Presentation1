@@ -88,14 +88,17 @@ network:
       dhcp4: no
       dhcp6: no
       addresses: [10.10.10.2/24, ]
-      gateway4:  10.10.10.1
+      gateway4:  10.10.10.1  <---- gw not required. may create Internet connection issue
       nameservers:
               addresses: [8.8.8.8, 8.8.4.4]
 
 //Save the 01-network-manager-all.yaml file and execute  sudo netplan apply (no need to bootup the system)
 //------------------------------------------------------------------------------------------------------
 $ sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<master_IP>
-
+//----Debashish---If the above is not able to pull the kubeadm images, then perform below
+//    k8smaster@k8smaster-VirtualBox:~$ sudo kubeadm config images pull  (try it more than once if it doesnt work)
+//And then use the command sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<master_IP>
+//---------------------------------------------------------------------------------------------------------------------------
 // Save join token #kubeadm_join.txt
 
 //ADM settings 
