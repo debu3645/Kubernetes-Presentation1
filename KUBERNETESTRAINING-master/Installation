@@ -143,10 +143,18 @@ $ sudo kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/
 $ sudo kubectl get svc -n kube-system | grep kubernetes-dashboard
 $ sudo kubectl edit svc/kubernetes-dashboard -n kube-system
 //change ClusterIP to NodePort
+//------Debashish---- Change to "type: NodePort" and save the .yaml file-----------------------------------------
 // Trouble Shoot
 // Crash loop back dashboard
 // kubectl drain <node_name> --delete-local-data --ignore-daemonsets
 // kubectl uncordon <node_name>
+
+//----------------------------------------------------
+
+//----Debashish---Incase the status of "kubernetes-dashboard-57df4db6b-lfjt4" remains in "ContainerCreating", then use the below commands -
+    // kubectl drain <node_name> --delete-local-data --ignore-daemonsets    (Generally <node_name> is the name of the Worker Node)
+    // kubectl uncordon <node_name>
+//----------------------------------------------------
 
 ACCESS DASHBOARD
 ----------------
@@ -167,4 +175,13 @@ docker run \
   --detach=true \
   --name=cadvisor \
   google/cadvisor:latest
+
+
+
+COMMANDS---Debashish----
+
+sudo kubectl get pods -o wide --all-namespaces
+
+sudo kubectl describe pod <calico-node-cdz9f> --namespace <kube-system>
+
 
