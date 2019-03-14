@@ -161,6 +161,11 @@ ACCESS DASHBOARD
 $ sudo kubectl create serviceaccount dashboard -n default
 $ kubectl create clusterrolebinding dashboard-admin -n default --clusterrole=cluster-admin --serviceaccount=default:dashboard
 $ kubectl get secret $(kubectl get serviceaccount dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
+//--Debashish..Save the token from the above steps.
+//------Debashish--- To launch the Dashboard GUI, use command on Master " kubectl proxy".
+//  To view the dashboard in the browser, navigate to the following address in the browser of your Master VM: 
+//  http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+// Once the GUI opens, select "Token" and paste the token which was saved earlier.
 
 
 CA-ADVISOR
