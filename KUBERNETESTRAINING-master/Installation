@@ -1,3 +1,5 @@
+Step1
+------------------
 //Install DOCKER CE
 //Install Dependent package
 $ apt-get update
@@ -7,6 +9,8 @@ $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 // Finger print 9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88
 $ sudo apt-key fingerprint 0EBFCD88
 
+Steps2
+---------------
 //ADD DOCKER REPO
 $ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
@@ -19,10 +23,14 @@ $ sudo apt-get install -y docker-ce
 // VERIFY DOCKER STATUS Green and active is postive  
 systemctl status docker
 
+Step3
+----------------
 // ---Kubernetes Installation ---
 // ADD Key
 $ sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
+Step4
+--------------
 // ADD REPO
 $ sudo cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
 deb https://apt.kubernetes.io/ kubernetes-xenial main
@@ -38,7 +46,8 @@ $ sudo apt-get install -y kubelet kubeadm kubectl
 //      sudo kill -9 <Pid of all apt>  <---- This is how you solve it.
 // HOLD SERVICE
 $ sudo apt-mark hold kubelet kubeadm kubectl
-
+Step5
+------------------
 // ADDITIONAL SETTINGS 
 $ sudo modprobe br_netfilter
 $ sudo echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
@@ -51,10 +60,11 @@ $ sudo sysctl -p
 //SWAP OFF
 #vim.tiny /etc/fstab 
 sudo swapoff -a
-
+Step6
+--------------
 // NETWORKING AND CLUSTER START
 
-
+-----Debashish..There are two Network Plugin options available i.e. Flannel and Calico. You can choose any one of them. Preferred option is Calico
 ---- ANY ONE NETWORK PLUGGIN FLANNEL or CALICO -------
 
 
@@ -106,17 +116,20 @@ $ sudo mkdir -p $HOME/.kube
 $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 $ export KUBECONFIG=/etc/kubernetes/admin.conf
-
+Step7
+-------------
 //Calico apply 
 $ sudo kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
 $ sudo kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
 
-
+Step8
+-------------------
 //By default, your cluster will not schedule pods on the master for security reasons, APPLY "kubectl taint" command 
 $ sudo kubectl get pods -o wide --all-namespaces
 $ sudo kubectl taint nodes --all node-role.kubernetes.io/master-
 
-
+Step9
+-------------
 //STATUS CHECK 
 $ sudo kubectl get nodes
 //----------------------------------------------------------------------
@@ -135,8 +148,12 @@ and try to join again from the below token that you had stored while creating th
 ADDING NODE
 -----------
 
+//----Debashish---- For adding Worker/Slave/Minion nodes, perform Step1-Step8 i.e. Everything needs to be installed in Worker node including kbeadm.
+//---Dashboards are exclusively installed only in the Master node.
 
-DASHBOARD
+Step10
+----------------------
+DASHBOARD (To be installed on the Master node)
 ---------
 
 $ sudo kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
@@ -152,10 +169,11 @@ $ sudo kubectl edit svc/kubernetes-dashboard -n kube-system
 //----------------------------------------------------
 
 //----Debashish---Incase the status of "kubernetes-dashboard-57df4db6b-lfjt4" remains in "ContainerCreating", then use the below commands -
-    // kubectl drain <node_name> --delete-local-data --ignore-daemonsets    (Generally <node_name> is the name of the Worker Node)
+    // kubectl drain <node_name> --delete-local-data --ignore-daemonsets    (Check the <node_name> using Command-2 below as the name can vary.)
     // kubectl uncordon <node_name>
 //----------------------------------------------------
-
+Step11
+-------------------
 ACCESS DASHBOARD
 ----------------
 $ sudo kubectl create serviceaccount dashboard -n default
@@ -185,8 +203,10 @@ docker run \
 
 COMMANDS---Debashish----
 
-sudo kubectl get pods -o wide --all-namespaces
+1.  sudo kubectl get nodes
 
-sudo kubectl describe pod <calico-node-cdz9f> --namespace <kube-system>
+2.  sudo kubectl get pods -o wide --all-namespaces
+
+3.  sudo kubectl describe pod <calico-node-cdz9f> --namespace <kube-system>
 
 
