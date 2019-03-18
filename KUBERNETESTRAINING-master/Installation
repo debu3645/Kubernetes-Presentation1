@@ -184,7 +184,7 @@ $ kubectl get secret $(kubectl get serviceaccount dashboard -o jsonpath="{.secre
 //  To view the dashboard in the browser, navigate to the following address in the browser of your Master VM: 
 //  http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
 // Once the GUI opens, select "Token" and paste the token which was saved earlier.
-
+(need to execute step-10 as well)
 
 CA-ADVISOR
 -----------
@@ -216,4 +216,17 @@ Then, use the command "mount -n -o remount,rw /dev/sda1 /" and see if you have d
   UUID=b5957fea-92a3-4b24-bb5e-a07cf6522ac0 /               ext4    errors=remount-ro 0       1
   #/swapfile                                 none            swap    sw              0       0
 
+4. kubectl get ns or kubectl get namespaces
+5.kubectl create ns debweb (create a namespace 'debweb')
+6. kubectl get sa -n debweb ( create 'service-account' under namespace 'debweb')
+7. kubectl get secrets -n debweb (to check the token/secret)
+8. kubectl get all -n kube-system (check if it exists or not - service/kubernetes-dashboard and the corresponding (BOTH) ports number 443:31787/TCP )
+9.  kubectl get svc -n kube-system (Check the services under namespace 'kube-system')
+          kubernetes-dashboard   NodePort    10.96.65.25     <none>        443:31787/TCP   5d3h
+10. kubectl get ep -n kube-system  (endpoints of Pods)
+         kubernetes-dashboard      192.168.0.20:8443   <--- IPAddress of Pod
+
+Service(svc) is on the Front-end and Pods/Endpoints are on the Backend.
+11.  kubectl edit svc/kubernetes-dashboard -n kube-system  (to edit the 'kubernetes-dashboard' yaml/configuration)
+12. From the <node> where Dashboard is running, open IE and use https://127.0.0.1:31787
 
