@@ -209,4 +209,11 @@ COMMANDS---Debashish----
 
 3.  sudo kubectl describe pod <calico-node-cdz9f> --namespace <kube-system>
 
+Incase if the Ubuntu node fails to boot up with the below error ->
+ubuntu boot fails with ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock (code=exited, status=1/FAILURE)
+
+Then, use the command "mount -n -o remount,rw /dev/sda1 /" and see if you have done any changes in /etc/fstab(it should be as below i.e. commet the swapfile line), then revert back. Reboot the VM and should be fine.
+  UUID=b5957fea-92a3-4b24-bb5e-a07cf6522ac0 /               ext4    errors=remount-ro 0       1
+  #/swapfile                                 none            swap    sw              0       0
+
 
