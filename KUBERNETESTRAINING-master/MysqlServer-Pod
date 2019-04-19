@@ -1,0 +1,142 @@
+
+Running Mysql Server as a container and also as a Pod in Kubernetes and accessing the service from a remote machine
+
+
+
+Here is my dockerfile:
+
+MAINTAINER debu_bbsr@yahoo.com
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server \
+ && sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mysql/mysql.conf.d/mysqld.cnf \
+ && mkdir /var/run/mysqld \
+ && chown -R mysql:mysql /var/run/mysqld
+
+VOLUME ["/var/lib/mysql"]
+
+EXPOSE 3306
+
+CMD ["mysqld_safe"]
+
+
+I created an image:
+
+sudo docker build -t deb_mysql_image .
+
+
+
+Run the Docker container with the above image:
+
+sudo docker run -i -t -d -p 3306:3306 --name mysql_deb_container deb_mysql_image
+
+
+Enter into the MySQL container:
+
+`k8smaster@k8smaster:~/debashish$ sudo docker exec -it mysql_deb_container mysql`
+
+
+Create different users and database:
+
+	mysql> create user debashish identified by 'debashish';
+	mysql> create user debmysql identified by 'debmysql';
+	mysql> create database debdb;
+	mysql> use debdb;
+	Grant privileges to the users and create a table:
+
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'debashish' WITH GRANT OPTION;  
+
+
+
+CREATE TABLE debtbl1 (name VARCHAR(20), address VARCHAR(50));
+
+
+
+Populate the table:
+
+	mysql>insert into debtbl1 values('Debashish', 'Shanghai');
+	mysql>insert into debtbl1 values('Debu', 'Livingston, Shanghai');
+
+
+
+Now access the contents of the above MySQL table from a remote machine with the MySQL client:
+
+k8snode1@k8snode1:~$ mysql -u 'debashish' -p  -h 10.10.10.2 -P 3306 -D debdb
+Enter password
+
+
+Alternatively you can also run the container in a k8s pod and access mysql service as below -
+
+
+k8smaster@k8smaster:~/debashish$ more createdeb_mysql_deployment1.yaml
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: debdeploy-mysqlserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debdeploy1mysqlserver
+      location:  Shanghai
+  template:
+    metadata:
+      labels:
+        app: debdeploy1mysqlserver
+        location:  Shanghai
+    spec:
+      containers:
+        -
+          image: "docker.io/debu3645/deb_mysql_image:v1"
+          name: deb-deploymysql1-container
+          ports:
+            -
+              containerPort: 4060  (Looks like this doesnt have any impact)
+
+
+kubectl -n debns1 create -f createdeb_mysql_deployment1.yaml
+
+k8smaster@k8smaster:~/debashish$ more svc5_mysql.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: mysql-svc-deb
+spec:
+  selector:
+    location:  Shanghai
+  ports:
+  - protocol: TCP
+    port: 5360
+    targetPort: 3060   (Looks like this doesnt have any impact)
+
+
+kubectl -n debns1 create -f svc5_mysql.yaml
+
+
+k8smaster@k8smaster:~/debashish$ kubectl describe svc mysql-svc-deb -n debns1
+Name:                     mysql-svc-deb
+Namespace:                debns1
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 location=Shanghai
+Type:                     NodePort
+IP:                       10.110.138.252
+Port:                     <unset>  5360/TCP
+TargetPort:               3306/TCP
+NodePort:                 <unset>  30911/TCP
+Endpoints:                192.168.1.22:3306
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+
+
+
+Successfully starting the application with below:
+
+k8smaster@k8smaster:~/debashish$ mysql -u 'debashish' -p -h 127.0.0.1 -P 30911 -D debdb
+k8smaster@k8smaster:~/debashish$ mysql -u 'debashish' -p -h 10.110.138.252 -P 5360 -D debdb
+k8smaster@k8smaster:~/debashish$ mysql -u 'debashish' -p  -h 192.168.1.22 -P 3306 -D debdb
+
+k8snode1@k8snode1:~$  mysql -u 'debashish' -p -h 127.0.0.1 -P 30911 -D debdb
+k8snode1@k8snode1:~$ mysql -u 'debashish' -p -h 10.110.138.252 -P 5360 -D debdb
+k8snode1@k8snode1:~$ mysql -u 'debashish' -p  -h 192.168.1.22 -P 3306 -D debdb
